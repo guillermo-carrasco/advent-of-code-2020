@@ -46,7 +46,7 @@ In your expense report, what is the product of the three entries that sum to 202
 """
 
 
-class Day1:
+class Day1(object):
     def __init__(self, input_file_path):
 
         with open(input_file_path, "r") as f:

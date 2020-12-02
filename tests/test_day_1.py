@@ -33,5 +33,5 @@ def generate_test_case(length, max_int):
             n = random.randint(0, max_int)
         test_case.append(n)
 
-    with open('test.txt', 'w') as f:
-        f.writelines([str(n) + '\n' for n in test_case])
+    with open("test.txt", "w") as f:
+        f.writelines([str(n) + "\n" for n in test_case])
