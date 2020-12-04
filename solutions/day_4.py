@@ -55,32 +55,93 @@ According to the above rules, your improved system would report 2 valid passport
 
 Count the number of valid passports - those that have all required fields. Treat cid as optional. In your batch file,
 how many passports are valid?
+
+The line is moving more quickly now, but you overhear airport security talking about how passports with invalid data are
+getting through. Better add some data validation, quick!
+
+You can continue to ignore the cid field, but each other field has strict rules about what values are valid for
+automatic validation:
+
+    byr (Birth Year) - four digits; at least 1920 and at most 2002.
+    iyr (Issue Year) - four digits; at least 2010 and at most 2020.
+    eyr (Expiration Year) - four digits; at least 2020 and at most 2030.
+    hgt (Height) - a number followed by either cm or in:
+    If cm, the number must be at least 150 and at most 193.
+    If in, the number must be at least 59 and at most 76.
+    hcl (Hair Color) - a # followed by exactly six characters 0-9 or a-f.
+    ecl (Eye Color) - exactly one of: amb blu brn gry grn hzl oth.
+    pid (Passport ID) - a nine-digit number, including leading zeroes.
+    cid (Country ID) - ignored, missing or not.
+
+Your job is to count the passports where all required fields are both present and valid according to the above rules
 """
+import re
+
+
+def _is_int(n):
+    try:
+        _ = int(n)
+        return True
+    except ValueError:
+        return False
 
 
 class Passport(object):
+
+    required_fields = ["byr", "iyr", "eyr", "hgt", "hcl", "ecl", "pid"]
+
     def __init__(self, values: dict):
 
-        self.passport_fields = ["byr", "iyr", "eyr", "hgt", "hcl", "ecl", "pid", "cid"]
-        self.required_fields = ["byr", "iyr", "eyr", "hgt", "hcl", "ecl", "pid"]
-        self.byr = None
-        self.iyr = None
-        self.eyr = None
-        self.hgt = None
-        self.hcl = None
-        self.ecl = None
-        self.pid = None
-        self.cid = None
+        self.has_required_fields = all([field in values for field in self.required_fields])
 
         for i, v in values.items():
-            if i in self.passport_fields:
-                setattr(self, i, v)
+            setattr(self, i, v)
 
-    def __str__(self):
-        return "\n".join([f"{f}: {getattr(self, f)}" for f in self.passport_fields])
+    def is_valid(self, strict=False):
+        if strict and self.has_required_fields:
+            # BYR
+            if _is_int(self.byr) and (int(self.byr) < 1920 or int(self.byr) > 2002):
+                return False
 
-    def is_valid(self):
-        return all([getattr(self, field) is not None for field in self.required_fields])
+            # IYR
+            if _is_int(self.iyr) and (int(self.iyr) < 2010 or int(self.iyr) > 2020):
+                return False
+
+            # EYR
+            if _is_int(self.eyr) and (int(self.eyr) < 2020 or int(self.eyr) > 2030):
+                return False
+
+            # HGT
+            if len(self.hgt) < 4:
+                return False
+            unit = self.hgt[-2:]
+            hgt = self.hgt[:-2]
+            if not _is_int(hgt):
+                return False
+            if (
+                unit not in ["cm", "in"]
+                or (unit == "cm" and (int(hgt) < 150 or int(hgt) > 193))
+                or (unit == "in" and (int(hgt) < 59 or int(hgt) > 76))
+            ):
+                return False
+
+            # HCL
+            hcl_pattern = "#[0-9, a-f]{6}"
+            if not re.match(hcl_pattern, self.hcl):
+                return False
+
+            # ECL
+            if self.ecl not in ["amb", "blu", "brn", "gry", "grn", "hzl", "oth"]:
+                return False
+
+            # PID
+            pid_pattern = "^[0-9]{9}$"
+            if not re.match(pid_pattern, self.pid):
+                return False
+
+            return True
+        else:
+            return self.has_required_fields
 
 
 class Day4(object):
@@ -96,7 +157,7 @@ class Day4(object):
         self.passports = [Passport(_parse_passport(passport)) for passport in passports.split("\n\n")]
 
     def part_1(self):
-        return sum([passport.is_valid() for passport in self.passports])
+        return sum([passport.is_valid(strict=False) for passport in self.passports])
 
     def part_2(self):
-        return -1
+        return sum([passport.is_valid(strict=True) for passport in self.passports])
