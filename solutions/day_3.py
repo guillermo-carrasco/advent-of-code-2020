@@ -62,14 +62,28 @@ In this example, traversing the map using this slope would cause you to encounte
 
 Starting at the top-left corner of your map and following a slope of right 3 and down 1, how many trees would you
 encounter?
+
+--- Part Two ---
+Time to check the rest of the slopes - you need to minimize the probability of a sudden arboreal stop, after all.
+
+Determine the number of trees you would encounter if, for each of the following slopes, you start at the top-left corner
+and traverse the map all the way to the bottom:
+
+Right 1, down 1.
+Right 3, down 1. (This is the slope you already checked.)
+Right 5, down 1.
+Right 7, down 1.
+Right 1, down 2.
+
+In the above example, these slopes would find 2, 7, 3, 4, and 2 tree(s) respectively; multiplied together, these produce
+the answer 336.
+
+What do you get if you multiply together the number of trees encountered on each of the listed slopes?
 """
 
 
 class Day3(object):
     def __init__(self, input_file_path):
-
-        self.slope_right = 3
-        self.slope_down = 1
 
         with open(input_file_path, "r") as f:
             self.toboggan = [line.strip() for line in f.readlines()]
@@ -77,12 +91,24 @@ class Day3(object):
         self.pattern_length = len(self.toboggan[0])
         self.toboggan_depth = len(self.toboggan)
 
-    def part_1(self):
+    def _run_slope(self, right_steps, down_steps):
         current_pos = current_depth = n_trees = 0
-        while current_depth < self.toboggan_depth - 1:
-            current_pos = (current_pos + self.slope_right) % self.pattern_length
-            current_depth += 1
+        while current_depth + down_steps < self.toboggan_depth:
+            current_pos = (current_pos + right_steps) % self.pattern_length
+            current_depth += down_steps
             if self.toboggan[current_depth][current_pos] == "#":
                 n_trees += 1
 
         return n_trees
+
+    def part_1(self):
+        return self._run_slope(right_steps=3, down_steps=1)
+
+    def part_2(self):
+        return (
+            self._run_slope(1, 1)
+            * self._run_slope(3, 1)
+            * self._run_slope(5, 1)
+            * self._run_slope(7, 1)
+            * self._run_slope(1, 2)
+        )
