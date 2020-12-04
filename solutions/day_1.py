@@ -53,25 +53,26 @@ class Day1(object):
             self.expenses = [int(n) for n in f.readlines()]
 
         self.expenses.sort()
+        self.target_expense = 2020
 
-    def part_1(self, target_expense):
+    def part_1(self):
         left = 0
         right = len(self.expenses) - 1
 
         _sum = 0
-        while _sum != target_expense:
+        while _sum != self.target_expense:
             _sum = self.expenses[left] + self.expenses[right]
-            if _sum < target_expense:
+            if _sum < self.target_expense:
                 left += 1
-            elif _sum > target_expense:
+            elif _sum > self.target_expense:
                 right -= 1
 
         sol = self.expenses[left] * self.expenses[right]
-        print(f"{self.expenses[left]} + {self.expenses[right]} = {target_expense}. Product = {sol}")
+        print(f"{self.expenses[left]} + {self.expenses[right]} = {self.target_expense}. Product = {sol}")
 
         return sol
 
-    def part_2(self, target_expense):
+    def part_2(self):
         for i in range(len(self.expenses) - 2):
             left = i + 1
             right = len(self.expenses) - 1
@@ -80,16 +81,16 @@ class Day1(object):
             sol = 0
             while left < right:
                 _sum = self.expenses[i] + self.expenses[left] + self.expenses[right]
-                if _sum < target_expense:
+                if _sum < self.target_expense:
                     left += 1
-                elif _sum > target_expense:
+                elif _sum > self.target_expense:
                     right -= 1
                 else:
                     sol = self.expenses[i] * self.expenses[left] * self.expenses[right]
                     print(
-                        f"{self.expenses[i]} + {self.expenses[left]} + {self.expenses[right]} = {target_expense}. Product = {sol}"
+                        f"{self.expenses[i]} + {self.expenses[left]} + {self.expenses[right]} = {self.target_expense}. Product = {sol}"
                     )
                     break
 
-            if _sum == target_expense:
+            if _sum == self.target_expense:
                 return sol
