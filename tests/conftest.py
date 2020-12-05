@@ -116,3 +116,17 @@ def day_4_invalid_passports(tmp_path):
     p.write_text("\n".join(content))
 
     return p
+
+
+@pytest.fixture(scope="function")
+def day_5_input(tmp_path):
+    p = tmp_path / "input.txt"
+    content = [
+        "FBFBBFFRLR",
+        "BFFFBBFRRR",
+        "FFFBBBFRRR",
+        "BBFFBBFRLL",
+    ]
+    p.write_text("\n".join(content))
+
+    return p
