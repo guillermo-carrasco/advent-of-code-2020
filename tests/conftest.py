@@ -130,3 +130,28 @@ def day_5_input(tmp_path):
     p.write_text("\n".join(content))
 
     return p
+
+
+@pytest.fixture(scope="function")
+def day_6_input(tmp_path):
+    p = tmp_path / "input.txt"
+    content = [
+        "abc",
+        "",
+        "a",
+        "b",
+        "c",
+        "",
+        "ab",
+        "ac",
+        "",
+        "a",
+        "a",
+        "a",
+        "a",
+        "",
+        "b",
+    ]
+    p.write_text("\n".join(content))
+
+    return p
