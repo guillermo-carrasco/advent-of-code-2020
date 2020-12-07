@@ -90,13 +90,13 @@ from collections import Counter
 class Day6(object):
     def __init__(self, input_file_path):
         with open(input_file_path, "r") as f:
-            self.groups = f.read().strip().split('\n\n')
+            self.groups = f.read().strip().split("\n\n")
 
     def part_1(self):
         count = 0
         for group in self.groups:
             questions_answered_yes = set()
-            passenger_answers = [list(passenger_answers) for passenger_answers in group.split('\n')]
+            passenger_answers = [list(passenger_answers) for passenger_answers in group.split("\n")]
             _ = [questions_answered_yes.update(passenger_answer) for passenger_answer in passenger_answers]
             count += len(questions_answered_yes)
 
@@ -106,7 +106,7 @@ class Day6(object):
         count = 0
         for group in self.groups:
             questions_answered_yes = Counter()
-            passenger_answers = [list(passenger_answers) for passenger_answers in group.split('\n')]
+            passenger_answers = [list(passenger_answers) for passenger_answers in group.split("\n")]
             _ = [questions_answered_yes.update(passenger_answer) for passenger_answer in passenger_answers]
             for question, n_answers in questions_answered_yes.most_common():
                 if n_answers == len(passenger_answers):
