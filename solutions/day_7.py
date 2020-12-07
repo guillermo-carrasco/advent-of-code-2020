@@ -123,8 +123,4 @@ class Day7(object):
             return n_bags
 
     def part_2(self):
-        n_bags = 0
-        for node, attributes in list(self.bags["shiny gold"].items()):
-            n_bags += attributes["weight"] + attributes["weight"] * self._count_bags_per_node(node)
-
-        return n_bags
+        return self._count_bags_per_node('shiny gold')
