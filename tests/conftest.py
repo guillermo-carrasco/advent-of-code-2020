@@ -191,3 +191,22 @@ def day_7_input_2(tmp_path):
     p.write_text("\n".join(content))
 
     return p
+
+
+@pytest.fixture(scope="function")
+def day_8_input(tmp_path):
+    p = tmp_path / "input.txt"
+    content = [
+        "nop +0",
+        "acc +1",
+        "jmp +4",
+        "acc +3",
+        "jmp -3",
+        "acc -99",
+        "acc +1",
+        "jmp -4",
+        "acc +6",
+    ]
+    p.write_text("\n".join(content))
+
+    return p

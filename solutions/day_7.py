@@ -123,4 +123,4 @@ class Day7(object):
             return n_bags
 
     def part_2(self):
-        return self._count_bags_per_node('shiny gold')
+        return self._count_bags_per_node("shiny gold")
