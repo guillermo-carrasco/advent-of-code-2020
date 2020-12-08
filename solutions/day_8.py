@@ -55,7 +55,54 @@ Immediately before the program would run an instruction a second time, the value
 
 Run your copy of the boot code. Immediately before any instruction is executed a second time, what value is in the
 accumulator?
+
+--- Part Two ---
+
+After some careful analysis, you believe that exactly one instruction is corrupted.
+
+Somewhere in the program, either a jmp is supposed to be a nop, or a nop is supposed to be a jmp. (No acc instructions
+were harmed in the corruption of this boot code.)
+
+The program is supposed to terminate by attempting to execute an instruction immediately after the last instruction in
+the file. By changing exactly one jmp or nop, you can repair the boot code and make it terminate correctly.
+
+For example, consider the same program from above:
+
+    nop +0
+    acc +1
+    jmp +4
+    acc +3
+    jmp -3
+    acc -99
+    acc +1
+    jmp -4
+    acc +6
+
+If you change the first instruction from nop +0 to jmp +0, it would create a single-instruction infinite loop, never
+leaving that instruction. If you change almost any of the jmp instructions, the program will still eventually find
+another jmp instruction and loop forever.
+
+However, if you change the second-to-last instruction (from jmp -4 to nop -4), the program terminates! The instructions
+are visited in this order:
+
+nop +0  | 1
+acc +1  | 2
+jmp +4  | 3
+acc +3  |
+jmp -3  |
+acc -99 |
+acc +1  | 4
+nop -4  | 5
+acc +6  | 6
+
+After the last instruction (acc +6), the program terminates by attempting to run the instruction below the last
+instruction in the file. With this change, after the program terminates, the accumulator contains the value 8
+(acc +1, acc +1, acc +6).
+
+Fix the program so that it terminates normally by changing exactly one jmp (to nop) or nop (to jmp). What is the value
+of the accumulator after the program terminates?
 """
+import copy
 
 
 class Day8(object):
@@ -74,31 +121,44 @@ class Day8(object):
             {"instruction": instruction, "sign": sign, "steps": steps, "visited": False}
             for instruction, sign, steps in instructions_list
         ]
-        self.len_program = len(self.program)
 
-    def part_1(self):
+    @staticmethod
+    def execute_program(program, return_accumulator_on_loop=False):
         accumulator = 0
         idx = 0
-        while True:
-            if self.program[idx]["visited"]:
+        while idx < len(program):
+            if program[idx]["visited"]:
                 break
-            self.program[idx]["visited"] = True
+            program[idx]["visited"] = True
 
-            instruction = self.program[idx]["instruction"]
-            sign = self.program[idx]["sign"]
-            steps = self.program[idx]["steps"]
+            instruction = program[idx]["instruction"]
+            sign = program[idx]["sign"]
+            steps = program[idx]["steps"]
 
             if instruction == "acc":
                 accumulator = eval(f"accumulator {sign} {steps}")
-                idx = (idx + 1) % self.len_program
+                idx += +1
 
             elif instruction == "jmp":
-                idx = eval(f"idx {sign} {steps}") % self.len_program
+                idx = eval(f"idx {sign} {steps}")
 
             else:
-                idx = (idx + 1) % self.len_program
+                idx += 1
 
-        return accumulator
+        return accumulator if return_accumulator_on_loop or idx == len(program) else None
+
+    def part_1(self):
+        return self.execute_program(self.program, return_accumulator_on_loop=True)
 
     def part_2(self):
-        return 0
+        def switch_instruction(ins):
+            return "nop" if ins == "jmp" else "jmp"
+
+        # Generate all possible programs
+        for i in range(len(self.program)):
+            if self.program[i]["instruction"] in ["jmp", "nop"]:
+                new_p = copy.deepcopy(self.program)
+                new_p[i]["instruction"] = switch_instruction(new_p[i]["instruction"])
+                res = self.execute_program(new_p, return_accumulator_on_loop=False)
+                if res is not None:
+                    return res

@@ -10,4 +10,4 @@ def test_part_1(day_8_input):
 def test_part_2(day_8_input):
 
     solver = Day8(day_8_input)
-    assert solver.part_2() == 32
+    assert solver.part_2() == 8
