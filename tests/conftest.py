@@ -302,3 +302,23 @@ def day_10_input_2(tmp_path):
     p.write_text("\n".join(content))
 
     return p
+
+
+@pytest.fixture(scope="function")
+def day_11_input(tmp_path):
+    p = tmp_path / "input.txt"
+    content = [
+        "L.LL.LL.LL",
+        "LLLLLLL.LL",
+        "L.L.L..L..",
+        "LLLL.LL.LL",
+        "L.LL.LL.LL",
+        "L.LLLLL.LL",
+        "..L.L.....",
+        "LLLLLLLLLL",
+        "L.LLLLLL.L",
+        "L.LLLLL.LL",
+    ]
+    p.write_text("\n".join(content))
+
+    return p
