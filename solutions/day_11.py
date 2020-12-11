@@ -95,6 +95,128 @@ seats to change state! Once people stop moving around, you count 37 occupied sea
 
 Simulate your seating area by applying the seating rules repeatedly until no seats change state. How many seats end up
 occupied?
+
+--- Part Two ---
+As soon as people start to arrive, you realize your mistake. People don't just care about adjacent seats - they care
+about the first seat they can see in each of those eight directions!
+
+Now, instead of considering just the eight immediately adjacent seats, consider the first seat in each of those eight
+directions. For example, the empty seat below would see eight occupied seats:
+
+    .......#.
+    ...#.....
+    .#.......
+    .........
+    ..#L....#
+    ....#....
+    .........
+    #........
+    ...#.....
+
+The leftmost empty seat below would only see one empty seat, but cannot see any of the occupied ones:
+
+    .............
+    .L.L.#.#.#.#.
+    .............
+
+The empty seat below would see no occupied seats:
+
+    .##.##.
+    #.#.#.#
+    ##...##
+    ...L...
+    ##...##
+    #.#.#.#
+    .##.##.
+
+Also, people seem to be more tolerant than you expected: it now takes five or more visible occupied seats for an
+occupied seat to become empty (rather than four or more from the previous rules). The other rules still apply: empty
+seats that see no occupied seats become occupied, seats matching no rule don't change, and floor never changes.
+
+Given the same starting layout as above, these new rules cause the seating area to shift around as follows:
+
+    L.LL.LL.LL
+    LLLLLLL.LL
+    L.L.L..L..
+    LLLL.LL.LL
+    L.LL.LL.LL
+    L.LLLLL.LL
+    ..L.L.....
+    LLLLLLLLLL
+    L.LLLLLL.L
+    L.LLLLL.LL
+
+    #.##.##.##
+    #######.##
+    #.#.#..#..
+    ####.##.##
+    #.##.##.##
+    #.#####.##
+    ..#.#.....
+    ##########
+    #.######.#
+    #.#####.##
+
+    #.LL.LL.L#
+    #LLLLLL.LL
+    L.L.L..L..
+    LLLL.LL.LL
+    L.LL.LL.LL
+    L.LLLLL.LL
+    ..L.L.....
+    LLLLLLLLL#
+    #.LLLLLL.L
+    #.LLLLL.L#
+
+    #.L#.##.L#
+    #L#####.LL
+    L.#.#..#..
+    ##L#.##.##
+    #.##.#L.##
+    #.#####.#L
+    ..#.#.....
+    LLL####LL#
+    #.L#####.L
+    #.L####.L#
+
+    #.L#.L#.L#
+    #LLLLLL.LL
+    L.L.L..#..
+    ##LL.LL.L#
+    L.LL.LL.L#
+    #.LLLLL.LL
+    ..L.L.....
+    LLLLLLLLL#
+    #.LLLLL#.L
+    #.L#LL#.L#
+    #.L#.L#.L#
+
+    #LLLLLL.LL
+    L.L.L..#..
+    ##L#.#L.L#
+    L.L#.#L.L#
+    #.L####.LL
+    ..#.#.....
+    LLL###LLL#
+    #.LLLLL#.L
+    #.L#LL#.L#
+    #.L#.L#.L#
+
+    #LLLLLL.LL
+    L.L.L..#..
+    ##L#.#L.L#
+    L.L#.LL.L#
+    #.LLLL#.LL
+    ..#.L.....
+    LLL###LLL#
+    #.LLLLL#.L
+    #.L#LL#.L#
+
+Again, at this point, people stop shifting around and the seating area reaches equilibrium. Once this occurs, you count
+26 occupied seats.
+
+Given the new visibility method and the rule change for occupied seats becoming empty, once equilibrium is reached, how
+many seats end up occupied?
 """
 from copy import deepcopy
 
@@ -135,6 +257,72 @@ class Day11(object):
         return n_occupied
 
     @staticmethod
+    def across_occupied(seats, i, j):
+        n_occupied = 0
+        # Diagonal up left
+        mod_i = mod_j = 1
+        while i - mod_i >= 0 and j - mod_j >= 0:
+            if seats[i - mod_i][j - mod_j] in ["#", "L"]:
+                n_occupied += 1 if seats[i - mod_i][j - mod_j] == "#" else 0
+                break
+            mod_i += 1
+            mod_j += 1
+        # Up
+        mod_i = 1
+        while i - mod_i >= 0:
+            if seats[i - mod_i][j] in ["#", "L"]:
+                n_occupied += 1 if seats[i - mod_i][j] == "#" else 0
+                break
+            mod_i += 1
+        # Diagonal up right
+        mod_i = mod_j = 1
+        while i - mod_i >= 0 and j + mod_j < len(seats[0]):
+            if seats[i - mod_i][j + mod_j] in ["#", "L"]:
+                n_occupied += 1 if seats[i - mod_i][j + mod_j] == "#" else 0
+                break
+            mod_i += 1
+            mod_j += 1
+        # Right
+        mod_j = 1
+        while j + mod_j < len(seats[0]):
+            if seats[i][j + mod_j] in ["#", "L"]:
+                n_occupied += 1 if seats[i][j + mod_j] == "#" else 0
+                break
+            mod_j += 1
+        # Diagonal down right
+        mod_i = mod_j = 1
+        while i + mod_i < len(seats) and j + mod_j < len(seats[0]):
+            if seats[i + mod_i][j + mod_j] in ["#", "L"]:
+                n_occupied += 1 if seats[i + mod_i][j + mod_j] == "#" else 0
+                break
+            mod_i += 1
+            mod_j += 1
+        # Down
+        mod_i = 1
+        while i + mod_i < len(seats):
+            if seats[i + mod_i][j] in ["#", "L"]:
+                n_occupied += 1 if seats[i + mod_i][j] == "#" else 0
+                break
+            mod_i += 1
+        # Diagonal down left
+        mod_i = mod_j = 1
+        while i + mod_i < len(seats) and j - mod_j >= 0:
+            if seats[i + mod_i][j - mod_j] in ["#", "L"]:
+                n_occupied += 1 if seats[i + mod_i][j - mod_j] == "#" else 0
+                break
+            mod_i += 1
+            mod_j += 1
+        # Left
+        mod_j = 1
+        while j - mod_j >= 0:
+            if seats[i][j - mod_j] in ["#", "L"]:
+                n_occupied += 1 if seats[i][j - mod_j] == "#" else 0
+                break
+            mod_j += 1
+
+        return n_occupied
+
+    @staticmethod
     def are_sittings_equal(seating1, seating2):
         return "".join(["".join(s) for s in seating1]) == "".join(["".join(s) for s in seating2])
 
@@ -162,4 +350,20 @@ class Day11(object):
         return self.n_occupied_seats(current_seating)
 
     def part_2(self):
-        return 0
+        changes = True
+        current_seating = deepcopy(self.original_seats)
+        while changes:
+            new_sitting = deepcopy(current_seating)
+            for i in range(len(current_seating)):
+                for j in range(len(current_seating[0])):
+                    if current_seating[i][j] == "L" and self.across_occupied(current_seating, i, j) == 0:
+                        new_sitting[i][j] = "#"
+                    elif current_seating[i][j] == "#" and self.across_occupied(current_seating, i, j) >= 5:
+                        new_sitting[i][j] = "L"
+
+            if self.are_sittings_equal(current_seating, new_sitting):
+                changes = False
+            else:
+                current_seating = deepcopy(new_sitting)
+
+        return self.n_occupied_seats(current_seating)

@@ -5,3 +5,9 @@ def test_part_1(day_11_input):
     solver = Day11(day_11_input)
 
     assert solver.part_1() == 37
+
+
+def test_part_2(day_11_input):
+    solver = Day11(day_11_input)
+
+    assert solver.part_2() == 26
