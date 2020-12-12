@@ -144,13 +144,11 @@ class Day12(object):
                 waypoint_position = waypoint_position + self.navigation[direction] * steps
             elif direction == "F":
                 ship_position = ship_position + waypoint_position * steps
-            elif direction == "L":
+            elif direction in ["L", "R"]:
+                degrees = steps if direction == "L" else -steps
                 waypoint_position = (
-                    self.rotate(ship_position + waypoint_position, origin=ship_position, degrees=steps) - ship_position
-                )
-            elif direction == "R":
-                waypoint_position = (
-                    self.rotate(ship_position + waypoint_position, origin=ship_position, degrees=-steps) - ship_position
+                    self.rotate(ship_position + waypoint_position, origin=ship_position, degrees=degrees)
+                    - ship_position
                 )
 
         return sum(abs(ship_position))
