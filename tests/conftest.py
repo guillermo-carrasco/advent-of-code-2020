@@ -337,3 +337,12 @@ def day_12_input(tmp_path):
     p.write_text("\n".join(content))
 
     return p
+
+
+@pytest.fixture(scope="function")
+def day_13_input(tmp_path):
+    p = tmp_path / "input.txt"
+    content = ["939", "7,13,x,x,59,x,31,19"]
+    p.write_text("\n".join(content))
+
+    return p
