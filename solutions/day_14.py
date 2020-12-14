@@ -54,10 +54,71 @@ program completes. (The entire 36-bit address space begins initialized to the va
 example, only two values in memory are not zero - 101 (at address 7) and 64 (at address 8) - producing a sum of 165.
 
 Execute the initialization program. What is the sum of all values left in memory after it completes?
+
+--- Part Two ---
+For some reason, the sea port's computer system still can't communicate with your ferry's docking program. It must be
+using version 2 of the decoder chip!
+
+A version 2 decoder chip doesn't modify the values being written at all. Instead, it acts as a memory address decoder.
+Immediately before a value is written to memory, each bit in the bitmask modifies the corresponding bit of the
+destination memory address in the following way:
+
+    If the bitmask bit is 0, the corresponding memory address bit is unchanged.
+    If the bitmask bit is 1, the corresponding memory address bit is overwritten with 1.
+    If the bitmask bit is X, the corresponding memory address bit is floating.
+
+A floating bit is not connected to anything and instead fluctuates unpredictably. In practice, this means the floating
+bits will take on all possible values, potentially causing many memory addresses to be written all at once!
+
+For example, consider the following program:
+
+    mask = 000000000000000000000000000000X1001X
+    mem[42] = 100
+    mask = 00000000000000000000000000000000X0XX
+    mem[26] = 1
+
+When this program goes to write to memory address 42, it first applies the bitmask:
+
+    address: 000000000000000000000000000000101010  (decimal 42)
+    mask:    000000000000000000000000000000X1001X
+    result:  000000000000000000000000000000X1101X
+
+After applying the mask, four bits are overwritten, three of which are different, and two of which are floating.
+Floating bits take on every possible combination of values; with two floating bits, four actual memory addresses
+are written:
+
+    000000000000000000000000000000011010  (decimal 26)
+    000000000000000000000000000000011011  (decimal 27)
+    000000000000000000000000000000111010  (decimal 58)
+    000000000000000000000000000000111011  (decimal 59)
+
+Next, the program is about to write to memory address 26 with a different bitmask:
+
+    address: 000000000000000000000000000000011010  (decimal 26)
+    mask:    00000000000000000000000000000000X0XX
+    result:  00000000000000000000000000000001X0XX
+
+This results in an address with three floating bits, causing writes to eight memory addresses:
+
+    000000000000000000000000000000010000  (decimal 16)
+    000000000000000000000000000000010001  (decimal 17)
+    000000000000000000000000000000010010  (decimal 18)
+    000000000000000000000000000000010011  (decimal 19)
+    000000000000000000000000000000011000  (decimal 24)
+    000000000000000000000000000000011001  (decimal 25)
+    000000000000000000000000000000011010  (decimal 26)
+    000000000000000000000000000000011011  (decimal 27)
+
+The entire 36-bit address space still begins initialized to the value 0 at every address, and you still need the sum of
+all values left in memory at the end of the program. In this example, the sum is 208.
+
+Execute the initialization program using an emulator for a version 2 decoder chip. What is the sum of all values left
+in memory after it completes?
 """
 import re
 
 from collections import defaultdict
+from itertools import product
 
 
 class Day14(object):
@@ -73,16 +134,24 @@ class Day14(object):
         return "0" * (precision - len(bin_n)) + bin_n
 
     @staticmethod
-    def apply_mask(mask, n):
+    def apply_mask(mask, n, version=1):
         mask = list(mask)
         n = list(n)
         masked = []
         for m, b in zip(mask, n):
-            if m == "X":
+            if m == "X" and version == 1:
+                masked.append(b)
+            elif m == "X" and version == 2:
+                masked.append(m)
+            elif m == "0" and version == 2:
                 masked.append(b)
             else:
                 masked.append(m)
         return "".join(masked)
+
+    def extract_mem_pos(self, instruction):
+        mem_pos, mem_int = re.search(self.mem_pattern, instruction).groups()
+        return int(mem_pos), int(mem_int)
 
     def part_1(self):
         mask = "X" * 36
@@ -90,14 +159,41 @@ class Day14(object):
             if instruction.startswith("mask = "):
                 mask = instruction.split("mask = ")[1]
             else:
-                mem_pos, mem_int = re.search(self.mem_pattern, instruction).groups()
-                mem_pos = int(mem_pos)
-                mem_int = int(mem_int)
+                mem_pos, mem_int = self.extract_mem_pos(instruction)
 
                 before_bin = self.binary(mem_int)
                 masked = self.apply_mask(mask, before_bin)
                 self.memory[mem_pos] = int(masked, 2)
         return sum(self.memory.values())
 
+    @staticmethod
+    def generate_masks(mask):
+        mask_replacements = list(product(*[["0", "1"]] * mask.count("X")))
+        masks = []
+        mask = list(mask)
+        for mask_replacement in mask_replacements:
+            new_mask = []
+            idx = 0
+            for bit in mask:
+                if bit == "X":
+                    new_mask.append(mask_replacement[idx])
+                    idx += 1
+                else:
+                    new_mask.append(bit)
+            masks.append("".join(new_mask))
+
+        return masks
+
     def part_2(self):
-        return 0
+        mask = "X" * 36
+        for instruction in self.program:
+            if instruction.startswith("mask = "):
+                mask = instruction.split("mask = ")[1]
+            else:
+                mem_pos, mem_int = self.extract_mem_pos(instruction)
+                before_bin = self.binary(mem_pos)
+                current_mask = self.apply_mask(mask, before_bin, version=2)
+                for m in self.generate_masks(current_mask):
+                    self.memory[int(m, 2)] = mem_int
+
+        return sum(self.memory.values())
