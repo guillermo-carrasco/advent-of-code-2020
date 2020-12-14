@@ -346,3 +346,17 @@ def day_13_input(tmp_path):
     p.write_text("\n".join(content))
 
     return p
+
+
+@pytest.fixture(scope="function")
+def day_14_input(tmp_path):
+    p = tmp_path / "input.txt"
+    content = [
+        "mask = XXXXXXXXXXXXXXXXXXXXXXXXXXXXX1XXXX0X",
+        "mem[8] = 11",
+        "mem[7] = 101",
+        "mem[8] = 0",
+    ]
+    p.write_text("\n".join(content))
+
+    return p
