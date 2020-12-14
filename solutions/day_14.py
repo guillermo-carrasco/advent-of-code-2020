@@ -161,9 +161,9 @@ class Day14(object):
             else:
                 mem_pos, mem_int = self.extract_mem_pos(instruction)
 
-                before_bin = self.binary(mem_int)
-                masked = self.apply_mask(mask, before_bin)
-                self.memory[mem_pos] = int(masked, 2)
+                mem_int_binary = self.binary(mem_int)
+                masked_mem_int = self.apply_mask(mask, mem_int_binary)
+                self.memory[mem_pos] = int(masked_mem_int, 2)
         return sum(self.memory.values())
 
     @staticmethod
@@ -191,8 +191,8 @@ class Day14(object):
                 mask = instruction.split("mask = ")[1]
             else:
                 mem_pos, mem_int = self.extract_mem_pos(instruction)
-                before_bin = self.binary(mem_pos)
-                current_mask = self.apply_mask(mask, before_bin, version=2)
+                mem_pos_bin = self.binary(mem_pos)
+                current_mask = self.apply_mask(mask, mem_pos_bin, version=2)
                 for m in self.generate_masks(current_mask):
                     self.memory[int(m, 2)] = mem_int
 
