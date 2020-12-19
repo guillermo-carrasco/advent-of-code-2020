@@ -45,6 +45,21 @@ Given the starting numbers 3,1,2, the 2020th number spoken is 1836.
 Given your starting numbers, what will be the 2020th number spoken?
 
 Your puzzle input is 8,0,17,4,1,12.
+
+--- Part Two ---
+
+Impressed, the Elves issue you a challenge: determine the 30000000th number spoken. For example, given the same starting
+numbers as above:
+
+Given 0,3,6, the 30000000th number spoken is 175594.
+Given 1,3,2, the 30000000th number spoken is 2578.
+Given 2,1,3, the 30000000th number spoken is 3544142.
+Given 1,2,3, the 30000000th number spoken is 261214.
+Given 2,3,1, the 30000000th number spoken is 6895259.
+Given 3,2,1, the 30000000th number spoken is 18.
+Given 3,1,2, the 30000000th number spoken is 362.
+
+Given your starting numbers, what will be the 30000000th number spoken?
 """
 from collections import Counter
 
@@ -56,21 +71,23 @@ class Day15(object):
                 numbers = [int(n) for n in f.read().split(",")]
         self.numbers = numbers
 
-    def part_1(self):
+    def last_spoken_number(self, n_turns):
         last_spoken = self.numbers[-1]
         times_spoken = Counter({n: 1 for n in self.numbers})
+        last_spoken_turn = {n: i + 1 for i, n in enumerate(self.numbers)}
         turn = len(self.numbers) + 1
-        while turn <= 2020:
+        while turn <= n_turns:
             # If it was the first time the last number spoken was spoken...
             if times_spoken[last_spoken] == 1:
-                last_spoken = 0
+                last_spoken_turn[last_spoken] = turn - 1
                 times_spoken[last_spoken] += 1
+                last_spoken = 0
+                times_spoken[0] += 1
             # Otherwise, substract the previous turn to the latest time the number was spoken
             else:
-                prev_turn = turn - 3
-                while self.numbers[prev_turn] != last_spoken:
-                    prev_turn -= 1
-                last_spoken = (turn - 1) - (prev_turn + 1)
+                turn_diff = turn - 1 - last_spoken_turn[last_spoken]
+                last_spoken_turn[last_spoken] = turn - 1
+                last_spoken = turn_diff
                 times_spoken[last_spoken] += 1
 
             turn += 1
@@ -78,5 +95,8 @@ class Day15(object):
 
         return last_spoken
 
+    def part_1(self):
+        return self.last_spoken_number(2020)
+
     def part_2(self):
-        return 0
+        return self.last_spoken_number(30000000)
