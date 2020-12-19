@@ -385,3 +385,25 @@ def day_15_input(tmp_path):
     p.write_text("\n".join(content))
 
     return p
+
+
+@pytest.fixture(scope="function")
+def day_16_input(tmp_path):
+    p = tmp_path / "input.txt"
+    content = [
+        "class: 1-3 or 5-7",
+        "row: 6-11 or 33-44",
+        "seat: 13-40 or 45-50",
+        "",
+        "your ticket:",
+        "7, 1, 14",
+        "",
+        "nearby tickets:",
+        "7,3,47",
+        "40,4,50",
+        "55,2,20",
+        "38,6,12",
+    ]
+    p.write_text("\n".join(content))
+
+    return p
