@@ -91,4 +91,33 @@ class Day16(object):
         return error_rate
 
     def part_2(self):
-        return 0
+        # Figure out the order in the tickets for every rule
+        valid_tickets = [self.your_ticket]
+        allowed_values = {v for _range in self.rule_ranges.values() for v in _range}
+        for ticket in self.nearby_tikets:
+            if allowed_values.issuperset(ticket):
+                valid_tickets.append(ticket)
+
+        rule_order = {}
+
+        # For each valid ticket, check if the value at index i fits in the ranges for a rule. If they all fit,
+        # this i will be the order of the rule
+        matched = {r: False for r in set(self.rule_ranges.keys())}
+        while not all(matched.values()):
+            for i, tickets_row in enumerate(zip(*valid_tickets)):
+                matches = []
+                order = -1
+                for rule in matched.keys():
+                    if not matched[rule] and self.rule_ranges[rule].issuperset(tickets_row):
+                        matches.append(rule)
+                        order = i
+                if len(matches) == 1:
+                    rule_order[matches[0]] = order
+                    matched[matches[0]] = True
+
+        contains_departure = [rule for rule in self.rule_ranges.keys() if rule.startswith("departure")]
+        res = 1
+        for rule in contains_departure:
+            res *= self.your_ticket[rule_order[rule]]
+
+        return res
